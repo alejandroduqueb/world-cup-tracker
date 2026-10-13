@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 – My Pool</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #07111f;
+    color: #dde3f0;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 32px 16px 60px;
+  }
+
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    letter-spacing: 0.08em;
+    color: #fff;
+  }
+  header p { color: #4a6090; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+  /* Controls */
+  .controls {
+    max-width: 960px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+
+  .filters button, .toggle-btn {
+    background: #111c30;
+    border: 1px solid #1e2e4a;
+    color: #6a82a8;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filters button:hover, .filters button.active,
+  .toggle-btn:hover, .toggle-btn.active {
+    background: #163060;
+    border-color: #2558aa;
+    color: #fff;
+  }
+
+  .toggle-btn { background: #1a1200; border-color: #3a2800; color: #b08020; }
+  .toggle-btn.active { background: #2a1e00; border-color: #c08030; color: #f0a030; }
+
+  /* Stats bar */
+  .stats {
+    max-width: 960px;
+    margin: 0 auto 18px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    background: #0e1a2e;
+    border: 1px solid #1a2840;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.75rem;
+    color: #4a6090;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-box strong { font-size: 1.1rem; color: #e0e8ff; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; }
+
+  /* Table */
+  .table-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #162030;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; min-width: 600px; }
+
+  thead tr { background: #0a1422; }
+  thead th {
+    padding: 10px 12px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #3a5070;
+    border-bottom: 1px solid #162030;
+    white-space: nowrap;
+  }
+  thead th.center { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid #0e1825;
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #0d1b2e; }
+
+  tbody tr.done {
+    opacity: 0.45;
+  }
+  tbody tr.done td.team-home,
+  tbody tr.done td.team-away { text-decoration: line-through; text-decoration-color: #3a5070; }
+
+  /* Day separator */
+  tr.day-sep td {
+    background: #091420;
+    padding: 5px 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #2a5090;
+    border-top: 1px solid #142030;
+  }
+
+  td { padding: 10px 12px; vertical-align: middle; }
+
+  td.date-col { color: #3a5070; font-size: 0.72rem; white-space: nowrap; }
+  td.time-col { color: #2a6090; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  td.grp-col { text-align: center; color: #2a4a70; font-size: 0.72rem; font-weight: 700; }
+
+  td.team-home { text-align: right; font-weight: 500; color: #c8d4e8; }
+  td.team-away { text-align: left; font-weight: 500; color: #c8d4e8; }
+
+  td.score-col { text-align: center; white-space: nowrap; }
+  .score-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+  }
+  .sn {
+    background: #121e32;
+    border: 1px solid #1e3050;
+    border-radius: 4px;
+    padding: 2px 8px;
+    min-width: 26px;
+    text-align: center;
+    color: #e8f0ff;
+  }
+  .sd { color: #253a55; font-size: 0.75rem; }
+
+  td.venue-col { color: #2e4060; font-size: 0.7rem; }
+
+  /* Check column */
+  td.check-col { text-align: center; }
+  .check-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #1e3050;
+    border-radius: 4px;
+    background: #0a1422;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  input[type="checkbox"]:checked {
+    background: #1a5030;
+    border-color: #28a060;
+  }
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 8px;
+    height: 12px;
+    border: 2px solid #40e090;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* Upcoming highlight */
+  tr.next-up td { background: #0e1e10 !important; }
+  tr.next-up td.team-home, tr.next-up td.team-away { color: #a8f0c0; }
+  tr.next-up td.time-col { color: #40c070; }
+
+  @media (max-width: 600px) {
+    td, th { padding: 8px 8px; }
+    td.venue-col { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="font-size:1.8rem;margin-bottom:4px">🏆</div>
+  <h1>FIFA World Cup 2026 – My Pool</h1>
+  <p>Group Stage · Check off matches as they happen</p>
+</header>
+
+<div class="controls">
+  <div class="filters" id="filters">
+    <button class="active" data-f="all">All</button>
+    <button data-f="A">A</button><button data-f="B">B</button><button data-f="C">C</button>
+    <button data-f="D">D</button><button data-f="E">E</button><button data-f="F">F</button>
+    <button data-f="G">G</button><button data-f="H">H</button><button data-f="I">I</button>
+    <button data-f="J">J</button><button data-f="K">K</button><button data-f="L">L</button>
+  </div>
+  <button class="toggle-btn" id="hideDoneBtn">Hide finished</button>
+</div>
+
+<div class="stats" id="statsBar">
+  <div class="stat-box"><strong id="statDone">0</strong> Finished</div>
+  <div class="stat-box"><strong id="statLeft">48</strong> Remaining</div>
+</div>
+
+<div class="table-wrap">
+<table id="matchTable">
+  <thead>
+    <tr>
+      <th class="center">✓</th>
+      <th>Date</th>
+      <th>Time (ET)</th>
+      <th class="center">Grp</th>
+      <th style="text-align:right">Home</th>
+      <th class="center">My Score</th>
+      <th>Away</th>
+      <th>Venue</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+// All 48 group stage matches in chronological order
+// Scores = pool predictions from the screenshot
+const DAYS = [
+  {
+    label: "Thu, Jun 11",
+    matches: [
+      { g:'A', time:'3:00 PM', h:'Mexico',      hs:1, as:1, a:'South Africa',         venue:'Mexico City' },
+      { g:'A', time:'—',       h:'South Korea',  hs:1, as:0, a:'Mexico',               venue:'Zapopan' },
+    ]
+  },
+  {
+    label: "Fri, Jun 12",
+    matches: [
+      { g:'B', time:'—',       h:'Canada',       hs:0, as:1, a:'Bosnia & Herz.',       venue:'Toronto' },
+      { g:'D', time:'—',       h:'USA',          hs:0, as:0, a:'Paraguay',             venue:'Los Angeles' },
+    ]
+  },
+  {
+    label: "Sat, Jun 13",
+    matches: [
+      { g:'B', time:'—',       h:'Qatar',        hs:0, as:3, a:'Switzerland',          venue:'Santa Clara' },
+      { g:'C', time:'—',       h:'Brazil',       hs:2, as:1, a:'Morocco',              venue:'East Rutherford' },
+      { g:'C', time:'—',       h:'Haiti',        hs:0, as:1, a:'Scotland',             venue:'Foxborough' },
+    ]
+  },
+  {
+    label: "Sun, Jun 14",
+    matches: [
+      { g:'D', time:'—',       h:'Australia',    hs:1, as:1, a:'USA',                  venue:'Vancouver' },
+      { g:'E', time:'—',       h:'Germany',      hs:3, as:0, a:'Curaçao',              venue:'Houston' },
+      { g:'F', time:'—',       h:'Netherlands',  hs:2, as:1, a:'Japan',                venue:'Dallas' },
+      { g:'E', time:'—',       h:'Ivory Coast',  hs:1, as:2, a:'Ecuador',              venue:'Philadelphia' },
+      { g:'F', time:'—',       h:'Sweden',       hs:3, as:2, a:'Tunisia',              venue:'Monterrey' },
+    ]
+  },
+  {
+    label: "Mon, Jun 15",
+    matches: [
+      { g:'H', time:'—',       h:'Spain',        hs:3, as:0, a:'Cabo Verde',           venue:'Atlanta' },
+      { g:'G', time:'—',       h:'Belgium',      hs:2, as:1, a:'Egypt',                venue:'Seattle' },
+      { g:'H', time:'—',       h:'Saudi Arabia', hs:1, as:2, a:'Cabo Verde',           venue:'Miami' },
+      { g:'G', time:'—',       h:'Egypt',        hs:2, as:0, a:'Iran',                 venue:'Los Angeles' },
+    ]
+  },
+  {
+    label: "Tue, Jun 16",
+    matches: [
+      { g:'I', time:'—',       h:'France',       hs:2, as:1, a:'Senegal',              venue:'East Rutherford' },
+      { g:'I', time:'—',       h:'Iraq',         hs:0, as:1, a:'Norway',               venue:'Foxborough' },
+      { g:'J', time:'—',       h:'Argentina',    hs:2, as:0, a:'Algeria',              venue:'Kansas City' },
+    ]
+  },
+  {
+    label: "Wed, Jun 17",
+    matches: [
+      { g:'J', time:'—',       h:'Austria',      hs:3, as:1, a:'Jordan',               venue:'Santa Clara' },
+      { g:'K', time:'—',       h:'Portugal',     hs:4, as:1, a:'DR Congo',             venue:'Houston' },
+      { g:'L', time:'—',       h:'England',      hs:2, as:1, a:'Croatia',              venue:'Arlington' },
+      { g:'L', time:'—',       h:'Ghana',        hs:1, as:0, a:'Panama',               venue:'Toronto' },
+      { g:'K', time:'—',       h:'Uzbekistan',   hs:0, as:1, a:'Colombia',             venue:'Mexico City' },
+    ]
+  },
+  {
+    label: "Thu, Jun 18",
+    matches: [
+      { g:'A', time:'—',       h:'South Africa', hs:0, as:0, a:'Czechia',              venue:'Atlanta' },
+      { g:'B', time:'—',       h:'Switzerland',  hs:4, as:1, a:'Bosnia & Herz.',       venue:'Los Angeles' },
+      { g:'B', time:'—',       h:'Canada',       hs:3, as:1, a:'Qatar',                venue:'Vancouver' },
+      { g:'A', time:'—',       h:'Mexico',       hs:1, as:0, a:'South Korea',          venue:'Zapopan' },
+    ]
+  },
+  {
+    label: "Fri, Jun 19",
+    matches: [
+      { g:'D', time:'—',       h:'USA',          hs:1, as:1, a:'Australia',            venue:'Seattle' },
+      { g:'C', time:'—',       h:'Scotland',     hs:1, as:1, a:'Morocco',              venue:'Foxborough' },
+      { g:'C', time:'—',       h:'Brazil',       hs:3, as:0, a:'Haiti',                venue:'Philadelphia' },
+      { g:'D', time:'—',       h:'Paraguay',     hs:2, as:0, a:'Australia',            venue:'Santa Clara' },
+    ]
+  },
+  {
+    label: "Sat, Jun 20",
+    matches: [
+      { g:'F', time:'—',       h:'Netherlands',  hs:3, as:2, a:'Sweden',               venue:'Houston' },
+      { g:'E', time:'—',       h:'Germany',      hs:2, as:0, a:'Ivory Coast',          venue:'Toronto' },
+      { g:'E', time:'—',       h:'Curaçao',      hs:0, as:0, a:'Ivory Coast',          venue:'Kansas City' },
+    ]
+  },
+  {
+    label: "Sun, Jun 21",
+    matches: [
+      { g:'F', time:'—',       h:'Japan',        hs:1, as:2, a:'Sweden',               venue:'Monterrey' },
+      { g:'H', time:'—',       h:'Spain',        hs:2, as:1, a:'Saudi Arabia',         venue:'Atlanta' },
+      { g:'G', time:'—',       h:'Belgium',      hs:3, as:0, a:'Iran',                 venue:'Los Angeles' },
+      { g:'H', time:'—',       h:'Cabo Verde',   hs:0, as:2, a:'Uruguay',              venue:'Miami' },
+      { g:'G', time:'—',       h:'Egypt',        hs:1, as:0, a:'New Zealand',          venue:'Vancouver' },
+    ]
+  },
+  {
+    label: "Mon, Jun 22",
+    matches: [
+      { g:'J', time:'1:00 PM', h:'Argentina',    hs:3, as:1, a:'Austria',              venue:'Arlington' },
+      { g:'I', time:'5:00 PM', h:'France',       hs:3, as:0, a:'Iraq',                 venue:'Philadelphia' },
+      { g:'I', time:'8:00 PM', h:'Norway',       hs:1, as:1, a:'Senegal',              venue:'East Rutherford' },
+      { g:'J', time:'11:00 PM',h:'Jordan',       hs:0, as:0, a:'Algeria',              venue:'Santa Clara' },
+    ]
+  },
+  {
+    label: "Tue, Jun 23",
+    matches: [
+      { g:'K', time:'1:00 PM', h:'Portugal',     hs:2, as:0, a:'Uzbekistan',           venue:'Houston' },
+      { g:'L', time:'4:00 PM', h:'England',      hs:1, as:0, a:'Ghana',                venue:'Foxborough' },
+      { g:'L', time:'7:00 PM', h:'Panama',       hs:1, as:2, a:'Croatia',              venue:'Toronto' },
+      { g:'K', time:'10:00 PM',h:'DR Congo',     hs:0, as:2, a:'Colombia',             venue:'Zapopan' },
+    ]
+  },
+  {
+    label: "Wed, Jun 24",
+    matches: [
+      { g:'B', time:'3:00 PM', h:'Switzerland',  hs:0, as:4, a:'Canada',               venue:'Vancouver' },
+      { g:'B', time:'3:00 PM', h:'Bosnia & Herz.',hs:1, as:0, a:'Qatar',               venue:'Seattle' },
+      { g:'C', time:'6:00 PM', h:'Scotland',     hs:0, as:1, a:'Haiti',                venue:'Miami' },
+      { g:'C', time:'6:00 PM', h:'Morocco',      hs:1, as:1, a:'Scotland',             venue:'Atlanta' },
+      { g:'A', time:'9:00 PM', h:'Mexico',       hs:0, as:1, a:'Czechia',              venue:'Mexico City' },
+      { g:'A', time:'9:00 PM', h:'South Africa', hs:2, as:0, a:'South Korea',          venue:'Monterrey' },
+    ]
+  },
+  {
+    label: "Thu, Jun 25",
+    matches: [
+      { g:'E', time:'4:00 PM', h:'Curaçao',      hs:0, as:3, a:'Ecuador',              venue:'Philadelphia' },
+      { g:'E', time:'4:00 PM', h:'Ivory Coast',  hs:1, as:2, a:'Ecuador',              venue:'East Rutherford' },
+      { g:'F', time:'7:00 PM', h:'Japan',        hs:1, as:0, a:'Tunisia',              venue:'Arlington' },
+      { g:'F', time:'7:00 PM', h:'Tunisia',      hs:0, as:2, a:'Netherlands',          venue:'Kansas City' },
+      { g:'D', time:'10:00 PM',h:'USA',          hs:0, as:1, a:'Turkey',               venue:'Los Angeles' },
+      { g:'D', time:'10:00 PM',h:'Paraguay',     hs:1, as:1, a:'Turkey',               venue:'Santa Clara' },
+    ]
+  },
+  {
+    label: "Fri, Jun 26",
+    matches: [
+      { g:'I', time:'3:00 PM', h:'France',       hs:2, as:2, a:'Norway',               venue:'Foxborough' },
+      { g:'I', time:'3:00 PM', h:'Senegal',      hs:1, as:0, a:'Iraq',                 venue:'Toronto' },
+      { g:'H', time:'8:00 PM', h:'Cabo Verde',   hs:1, as:2, a:'Saudi Arabia',         venue:'Houston' },
+      { g:'H', time:'8:00 PM', h:'Spain',        hs:1, as:1, a:'Uruguay',              venue:'Zapopan' },
+      { g:'G', time:'11:00 PM',h:'Iran',         hs:1, as:2, a:'New Zealand',          venue:'Seattle' },
+      { g:'G', time:'11:00 PM',h:'Belgium',      hs:1, as:0, a:'New Zealand',          venue:'Vancouver' },
+    ]
+  },
+  {
+    label: "Sat, Jun 27",
+    matches: [
+      { g:'L', time:'5:00 PM', h:'England',      hs:3, as:0, a:'Panama',               venue:'East Rutherford' },
+      { g:'L', time:'5:00 PM', h:'Croatia',      hs:1, as:0, a:'Ghana',                venue:'Philadelphia' },
+      { g:'K', time:'7:30 PM', h:'Portugal',     hs:2, as:2, a:'Colombia',             venue:'Miami' },
+      { g:'K', time:'7:30 PM', h:'DR Congo',     hs:0, as:0, a:'Uzbekistan',           venue:'Atlanta' },
+      { g:'J', time:'10:00 PM',h:'Algeria',      hs:1, as:2, a:'Austria',              venue:'Kansas City' },
+      { g:'J', time:'10:00 PM',h:'Jordan',       hs:1, as:0, a:'Argentina',            venue:'Arlington' },
+    ]
+  },
+];
+
+const STORAGE_KEY = 'wc2026_done';
+
+function loadDone() {
+  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function saveDone(set) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
+}
+
+let done = loadDone();
+let hideDone = false;
+let activeFilter = 'all';
+
+function getKey(dayIdx, mIdx) { return `${dayIdx}-${mIdx}`; }
+
+function updateStats() {
+  const total = DAYS.reduce((s, d) => s + d.matches.length, 0);
+  document.getElementById('statDone').textContent = done.size;
+  document.getElementById('statLeft').textContent = total - done.size;
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  let firstUnchecked = true;
+
+  DAYS.forEach((day, di) => {
+    const visibleMatches = day.matches.filter((m, mi) => {
+      if (activeFilter !== 'all' && m.g !== activeFilter) return false;
+      const k = getKey(di, mi);
+      if (hideDone && done.has(k)) return false;
+      return true;
+    });
+
+    if (visibleMatches.length === 0) return;
+
+    // Day separator
+    const sep = document.createElement('tr');
+    sep.className = 'day-sep';
+    sep.innerHTML = `<td colspan="8">${day.label}</td>`;
+    tbody.appendChild(sep);
+
+    day.matches.forEach((m, mi) => {
+      if (activeFilter !== 'all' && m.g !== activeFilter) return;
+      const k = getKey(di, mi);
+      const isDone = done.has(k);
+      if (hideDone && isDone) return;
+
+      const isNext = !isDone && firstUnchecked;
+      if (isNext) firstUnchecked = false;
+
+      const tr = document.createElement('tr');
+      if (isDone) tr.classList.add('done');
+      if (isNext) tr.classList.add('next-up');
+      tr.setAttribute('data-key', k);
+
+      tr.innerHTML = `
+        <td class="check-col">
+          <div class="check-wrap">
+            <input type="checkbox" ${isDone ? 'checked' : ''} data-key="${k}" title="Mark as finished">
+          </div>
+        </td>
+        <td class="date-col">${day.label.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s/, '')}</td>
+        <td class="time-col">${m.time}</td>
+        <td class="grp-col">${m.g}</td>
+        <td class="team-home">${m.h}</td>
+        <td class="score-col">
+          <div class="score-box">
+            <span class="sn">${m.hs}</span>
+            <span class="sd">–</span>
+            <span class="sn">${m.as}</span>
+          </div>
+        </td>
+        <td class="team-away">${m.a}</td>
+        <td class="venue-col">${m.venue}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+
+  // Attach checkbox listeners
+  tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      const k = e.target.dataset.key;
+      if (e.target.checked) done.add(k); else done.delete(k);
+      saveDone(done);
+      updateStats();
+      render();
+    });
+  });
+
+  updateStats();
+}
+
+// Filter buttons
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('button')) return;
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  activeFilter = e.target.dataset.f;
+  render();
+});
+
+// Hide done toggle
+document.getElementById('hideDoneBtn').addEventListener('click', function() {
+  hideDone = !hideDone;
+  this.classList.toggle('active', hideDone);
+  this.textContent = hideDone ? 'Show all' : 'Hide finished';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
